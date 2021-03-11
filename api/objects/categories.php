@@ -1,75 +1,106 @@
 <?php
-class Product{
+class Categories{
 
     // database connection and table name
     private $conn;
-    private $table_name = "products";
+    private $table_name = "categories";
+    private $table_name2 = "categories_tree";
 
     // object properties
-    public $id;
-    public $name;
-    public $description;
-    public $price;
+
     public $category_id;
+    public $sel_category_id;
     public $category_name;
-    public $created;
+    public $category_parent_id;
+    //public $category_id;
+    //public $category_name;
+    //public $created;
 
     // constructor with $db as database connection
     public function __construct($db){
         $this->conn = $db;
     }
     // read products
-    function read(){
+    function read($cat){
 
         // select all query
         $query = "SELECT
-                    c.name as category_name, p.id, p.name, p.description, p.price, p.category_id, p.created
+                    c.id as category_id, c.name as category_name, ct.cat_par_id as category_parent_id
                 FROM
-                    " . $this->table_name . " p
+                    " . $this->table_name . " c
                     LEFT JOIN
-                        categories c
-                            ON p.category_id = c.id
+                        categories_tree ct
+                            ON ct.cat_id = c.id
+                    WHERE ct.cat_par_id= :cat
                 ORDER BY
-                    p.created DESC";
+                    ct.cat_par_id";
 
         // prepare query statement
         $stmt = $this->conn->prepare($query);
-
+        $stmt->bindParam(":cat", $cat);
         // execute query
         $stmt->execute();
 
         return $stmt;
     }
+
     function create(){
 
         // query to insert record
         $query = "INSERT INTO
                     " . $this->table_name . "
                 SET
-                    name=:name, price=:price, description=:description, category_id=:category_id, created=:created";
+                    name=:category_name";
+       $stmt1 = $this->conn->prepare($query);
 
-        // prepare query
-        $stmt = $this->conn->prepare($query);
+
+        $query2 = "SELECT c.id as cid FROM
+                            " . $this->table_name . " c
+                        WHERE
+                            name=:category_name";
+
+        $stmt2 = $this->conn->prepare($query2);
+
+
+
+        $query3 = "INSERT INTO
+                    " . $this->table_name2 . "
+                SET
+                    cat_id=:sel_category_id,
+                    cat_par_id=:category_parent_id
+                ";
+
+        $stmt3 = $this->conn->prepare($query3);
+
 
         // sanitize
-        $this->name=htmlspecialchars(strip_tags($this->name));
-        $this->price=htmlspecialchars(strip_tags($this->price));
-        $this->description=htmlspecialchars(strip_tags($this->description));
+        $this->category_name=htmlspecialchars(strip_tags($this->category_name));
         $this->category_id=htmlspecialchars(strip_tags($this->category_id));
-        $this->created=htmlspecialchars(strip_tags($this->created));
+        $this->category_parent_id=htmlspecialchars(strip_tags($this->category_parent_id));
+        $this->sel_category_id=htmlspecialchars(strip_tags($this->sel_category_id));
+
 
         // bind values
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":price", $this->price);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":category_id", $this->category_id);
-        $stmt->bindParam(":created", $this->created);
 
-        // execute query
-        if($stmt->execute()){
-            return true;
+        $stmt1->bindParam(":category_name", $this->category_name);
+        $stmt2->bindParam(":category_name", $this->category_name);
+        $stmt3->bindParam(":sel_category_id", $this->sel_category_id);
+        $stmt3->bindParam(":category_parent_id", $this->category_parent_id);
+
+        if($stmt2->execute() ){
+
+        // get retrieved row
+          $row = $stmt2->fetch(PDO::FETCH_ASSOC);
+
+          // set values to object properties
+          $this->sel_category_id = $row['cid'];
+
+
+          // execute query
+          if($stmt1->execute() && $stmt3->execute()){
+              return true;
+          }
         }
-
         return false;
 
     }
@@ -113,29 +144,20 @@ function update(){
     $query = "UPDATE
                 " . $this->table_name . "
             SET
-                name = :name,
-                price = :price,
-                description = :description,
-                category_id = :category_id
+                name = :category_name
             WHERE
-                id = :id";
+                id = :category_id";
 
     // prepare query statement
     $stmt = $this->conn->prepare($query);
 
     // sanitize
-    $this->name=htmlspecialchars(strip_tags($this->name));
-    $this->price=htmlspecialchars(strip_tags($this->price));
-    $this->description=htmlspecialchars(strip_tags($this->description));
+    $this->category_name=htmlspecialchars(strip_tags($this->category_name));
     $this->category_id=htmlspecialchars(strip_tags($this->category_id));
-    $this->id=htmlspecialchars(strip_tags($this->id));
 
     // bind new values
-    $stmt->bindParam(':name', $this->name);
-    $stmt->bindParam(':price', $this->price);
-    $stmt->bindParam(':description', $this->description);
+    $stmt->bindParam(':category_name', $this->category_name);
     $stmt->bindParam(':category_id', $this->category_id);
-    $stmt->bindParam(':id', $this->id);
 
     // execute the query
     if($stmt->execute()){

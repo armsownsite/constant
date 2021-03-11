@@ -10,30 +10,27 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 include_once '../config/database.php';
 
 // instantiate product object
-include_once '../objects/product.php';
+include_once '../objects/categories.php';
 
 $database = new Database();
 $db = $database->getConnection();
 
-$product = new Product($db);
+$product = new Categories($db);
 
 // get posted data
 $data = json_decode(file_get_contents("php://input"));
 
 // make sure data is not empty
 if(
-    !empty($data->name) &&
-    !empty($data->price) &&
-    !empty($data->description) &&
-    !empty($data->category_id)
+    !empty($data->category_name) &&
+  //  !empty($data->category_id) &&
+    !empty($data->category_parent_id)
 ){
 
     // set product property values
-    $product->name = $data->name;
-    $product->price = $data->price;
-    $product->description = $data->description;
-    $product->category_id = $data->category_id;
-    $product->created = date('Y-m-d H:i:s');
+    $product->category_name = $data->category_name;
+  //  $product->category_id = $data->category_id;
+    $product->category_parent_id = $data->category_parent_id;
 
     // create the product
     if($product->create()){
@@ -55,8 +52,6 @@ if(
         echo json_encode(array("message" => "Unable to create product."));
     }
 }
-
-// tell the user data is incomplete
 else{
 
     // set response code - 400 bad request
