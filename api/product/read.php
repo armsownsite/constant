@@ -13,7 +13,6 @@ function readCat($cat){
 
   $categories = new Categories($db);
 
-  //$stmt = $product->read($cat);
   $stmt = $categories->read();
   $num = $stmt->rowCount();
 
@@ -27,21 +26,14 @@ function readCat($cat){
               "id" => $category_id,
               "parent" => $category_parent_id,
               "text" => $category_name,
-
-              //"cat_child" => readCat($category_id),
           );
-          //  array_push($products_arr, $product_item);readCat($cat)
           array_push($products_arr, $product_item);
       }
       http_response_code(200);
       return $products_arr;
-      //echo json_encode($products_arr);
   }
   else{
       http_response_code(404);
-      //echo json_encode(
-      //    array("message" => "No products found.")
-    //  );
     return array("message" => "No products found.");
 
   }
