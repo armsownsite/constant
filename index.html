@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <title>Simple jsTree</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $('#SimpleJSTree').on("create_node.jstree", function (e, data) {
+        console.log(data.node.parent);
+        var json = {
+          "category_name":'new',
+          "category_parent_id":data.node.parent*1
+        };
+        createTreeElement(json);
+      });
+      $('#SimpleJSTree').on("rename_node.jstree", function (e, data) {
+        var json = {
+          "category_id":data.node.id,
+          "category_name": 'new',
+          "category_parent_id":data.node.parent*1
+        };
+        console.log(json);
+      });
+
+      $.ajax({
+        url:"http://localhost/Constant/api/product/read.php",
+        type:"GET",
+        success: function(resp){
+          var jsondata = resp;
+          createJSTree(jsondata);
+        }
+      });
+
+      $('#getButton').on("click", function () {
+        var v = $('#SimpleJSTree').jstree(true).get_json('#', {flat:true})
+        getInsideElement(v);
+
+        function getInsideElement(v){
+          console.log(v);
+          for(let i = 0 ; i <v.length; i++){
+            var json = {
+              "category_id":v[i]['id'],
+              "category_name": v[i]['text'],
+              "category_parent_id":v[i]['parent']
+            };
+
+            $.ajax({
+              url:"http://localhost/Constant/api/product/update.php", //{action:'x',params:['a','b','c']}
+              type: 'POST',
+              data: JSON.stringify(json),
+              processData: false,
+              contentType: 'application/json',   success: function(resp){
+              }
+            });
+          }
+        }
+      });
+    });
+    function createTreeElement(json){
+      console.log(json);
+      $.ajax({
+        url:"http://localhost/Constant/api/product/create.php",
+        type: 'POST',
+        data: JSON.stringify(json),
+        processData: false,
+        contentType: 'application/json',
+        success: function(resp){
+
+        }
+      });
+    }
+    function createJSTree(jsondata) {
+      $('#SimpleJSTree').jstree({
+        "core": {
+          "check_callback": true,
+          'data': jsondata
+        },
+        "plugins": ["dnd","types","contextmenu"]
+      });
+
+
+    }
+  </script>
+</head>
+<body>
+  <div id="SimpleJSTree">
+
+  </div>
+  <button type="button" name="button" id="getButton">Save</button>
+</body>
+</html>

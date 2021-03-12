@@ -15,7 +15,7 @@ include_once '../objects/categories.php';
 $database = new Database();
 $db = $database->getConnection();
 
-$product = new Categories($db);
+$categories = new Categories($db);
 
 // get posted data
 $data = json_decode(file_get_contents("php://input"));
@@ -26,14 +26,13 @@ if(
   //  !empty($data->category_id) &&
     !empty($data->category_parent_id)
 ){
-
     // set product property values
-    $product->category_name = $data->category_name;
+    $categories->category_name = $data->category_name;
   //  $product->category_id = $data->category_id;
-    $product->category_parent_id = $data->category_parent_id;
+    $categories->category_parent_id = $data->category_parent_id;
 
     // create the product
-    if($product->create()){
+    if($categories->create()){
 
         // set response code - 201 created
         http_response_code(201);

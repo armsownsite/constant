@@ -11,9 +11,10 @@ function readCat($cat){
   $database = new Database();
   $db = $database->getConnection();
 
-  $product = new Categories($db);
+  $categories = new Categories($db);
 
-  $stmt = $product->read($cat);
+  //$stmt = $product->read($cat);
+  $stmt = $categories->read();
   $num = $stmt->rowCount();
 
   if($num>0){
@@ -23,10 +24,11 @@ function readCat($cat){
           extract($row);
 
           $product_item=array(
-              "category_id" => $category_id,
-              "category_name" => $category_name,
-              "category_parent_id" => $category_parent_id,
-              "cat_child" => readCat($category_id),
+              "id" => $category_id,
+              "parent" => $category_parent_id,
+              "text" => $category_name,
+
+              //"cat_child" => readCat($category_id),
           );
           //  array_push($products_arr, $product_item);readCat($cat)
           array_push($products_arr, $product_item);

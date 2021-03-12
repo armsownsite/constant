@@ -15,16 +15,17 @@ $database = new Database();
 $db = $database->getConnection();
 
 // prepare product object
-$product = new Categories($db);
+$categories = new Categories($db);
 
 // get id of product to be edited
 $data = json_decode(file_get_contents("php://input"));
 
-$product->category_id = $data->category_id;
-$product->category_name = $data->category_name;
+$categories->category_id = $data->category_id;
+$categories->category_name = $data->category_name;
+$categories->category_parent_id = $data->category_parent_id;
 
 // update the product
-if($product->update()){
+if($categories->update()){
 
     // set response code - 200 ok
     http_response_code(200);

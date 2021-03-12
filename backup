@@ -1,0 +1,33 @@
+function getResponse(){
+
+    $.ajax({
+    url:"http://localhost/Constant/api/product/read.php",
+    type:"GET",
+    //data:{windowName:windowId},
+    success: function(resp){
+      console.log(resp);
+      var listElement = document.getElementById("responseBlockUl");
+      getInsideElement(resp,listElement,0);
+    }
+  });
+}
+function getInsideElement(insideElement,listElement,priority){
+  var resp = insideElement;
+  for(let i = 0 ; i <insideElement.length; i++){
+        if(insideElement[i]['cat_child']['message']!='No products found.'){
+          listElement.innerHTML += "<div style='margin-left:20px;'  ondblclick='changeName(this)' class='not-empty tree_item' id='id_"+insideElement[i]['category_id']+"' catName="+insideElement[i]['category_name']+"'>"+insideElement[i]['category_name']+"</div>";
+        }
+        else{
+          listElement.innerHTML += "<div style='margin-left:20px;' ondblclick='changeName(this)' class='tree_item' id='id_"+insideElement[i]['category_id']+"' catName='"+insideElement[i]['category_name']+"'>"+insideElement[i]['category_name']+"</div>";
+        }
+        var childEl = document.getElementById('id_'+insideElement[i]['category_id']);
+        getInsideElement(insideElement[i]['cat_child'],childEl,1)
+  }
+}
+function changeName(e){
+  var thisElementId = e.id;
+  thisElementId = thisElementId.split("_");
+  thisElementId = thisElementId[1];
+  var thisElementName = e.getAttribute('catName');
+  alert(thisElementId+' - '+thisElementName);
+}
