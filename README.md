@@ -5,7 +5,7 @@ At the first you must to create constant DB in your mysql , then restore Constan
 Then you need to move Constant/ folder to your web server:
 In your Web Browser open http://localhost/Constant/
 
-Great 
+Instruction
 
     To Create new folder , you must tap the right click and tap Create Button
     Unfortunetly You Can rename your created Folder After Refreshing the page.
@@ -43,4 +43,4 @@ RESTAPI
 
 
 
-:: I know that i could make it much more better : but it`s 06:35 AM : and i want to sleep ))
+:: I know that i could make it much more better ))
